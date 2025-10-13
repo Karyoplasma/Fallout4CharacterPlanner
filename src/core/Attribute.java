@@ -2,52 +2,69 @@ package core;
 
 public class Attribute {
 	
-	private int minLevel, maxLevel;
+	private static final int MIN_LEVEL = 1;
+	private static final int MAX_LEVEL = 10;
 	private Stat stat;
-	private int level;
+	private int baseLevel, extraLevel;
 	
 	public Attribute(Stat stat, int level){
 		this.stat = stat;
-		this.level = level;
-		this.minLevel = 1;
-		this.maxLevel = 10;
+		this.baseLevel = level;
+		this.extraLevel = 0;
 	}
 	
 	public int getAttributeLevel(){
-		return this.level;
+		return this.baseLevel + this.extraLevel;
 	}
 	
 	public boolean skillAttribute(){
-		this.level++;
-		return true;
+		if (this.baseLevel < MAX_LEVEL) {
+			this.baseLevel++;
+			return true;
+		}
+//		System.out.println(String.format("BaseLevel: %d, ExtraLevel: %d", this.baseLevel, this.extraLevel));
+		return false;
 	}
 	
 	public boolean unskillAttribute(){
-		this.level--;
-		return true;
+		if (this.baseLevel > MIN_LEVEL) {
+			this.baseLevel--;
+			return true;
+		}
+//		System.out.println(String.format("BaseLevel: %d, ExtraLevel: %d", this.baseLevel, this.extraLevel));
+		return false;
 	}
 	
+	public void boostAttribute(int boost) {
+		this.extraLevel += boost;
+	}
+		
+	@Deprecated
 	public int getMinLevel(){
-		return this.minLevel;
+		return 1;
 	}
 	
+	@Deprecated
 	public int getMaxLevel(){
-		return this.maxLevel;
+		return 10;
 	}
 	
+	@Deprecated
 	public void addBobblehead(){
-		this.maxLevel++;
-		this.minLevel++;
-		this.level++;
+		this.extraLevel++;
 	}
 	
+	@Deprecated
 	public void removeBobblehead(){
-		this.minLevel--;
-		this.maxLevel--;
-		this.level--;
+		this.extraLevel--;
 	}
 
 	public Stat getStat() {
 		return stat;
+	}
+	
+	@Override
+	public String toString() {
+		return String.valueOf(this.getAttributeLevel());
 	}
 }

@@ -18,7 +18,7 @@ public class StatPanel extends JPanel implements ActionListener {
 	private static final Font PLAIN = new Font("Tahoma", Font.PLAIN, 14);
 	private static final Font BOLD = new Font("Tahoma", Font.BOLD, 14);
 	private final CharacterCalc calc;
-	private final JLabel carryWeightLabel, hpLabel, levelRequiredLabel;
+	private final JLabel carryWeightLabel, hpLabel, actionPointLabel, levelRequiredLabel;
 	private final JCheckBox survivalBox = new JCheckBox("Survival");
 
 	public StatPanel(CharacterCalc calc) {
@@ -26,22 +26,25 @@ public class StatPanel extends JPanel implements ActionListener {
 		this.carryWeightLabel = new JLabel();
 		this.hpLabel = new JLabel();
 		this.levelRequiredLabel = new JLabel();
+		this.actionPointLabel = new JLabel();
 		initUI();
 	}
 
 	private void refresh() {
 		this.carryWeightLabel.setText(String.valueOf(calc.getCarryWeight(survivalBox.isSelected())));
 		this.hpLabel.setText(String.valueOf((int) calc.getHitPoints()));
+		this.actionPointLabel.setText(String.valueOf(calc.getActionPoints()));
 		this.levelRequiredLabel.setText(String.valueOf(calc.getLevelNeeded()));
 	}
 
 	private void initUI() {
-		setLayout(new MigLayout("insets 10, wrap 2", "[grow][min:60:60]", "[]10[]10[]10[]"));
+		setLayout(new MigLayout("insets 10, wrap 2", "[grow][min:60:60]", "[]10[]10[]10[]10[]"));
 		TitledBorder border = javax.swing.BorderFactory.createTitledBorder("Character Stats");
 		border.setTitleFont(BOLD);
 		setBorder(border);
 		this.carryWeightLabel.setFont(PLAIN);
 		this.hpLabel.setFont(PLAIN);
+		this.actionPointLabel.setFont(PLAIN);
 		this.levelRequiredLabel.setFont(BOLD);
 		this.survivalBox.setFont(BOLD);
 		this.survivalBox.addActionListener(e -> {
@@ -56,6 +59,10 @@ public class StatPanel extends JPanel implements ActionListener {
 		temp.setFont(PLAIN);
 		add(temp);
 		add(this.carryWeightLabel, "sg backlabel");
+		temp = new JLabel("Action Points:");
+		temp.setFont(PLAIN);
+		add(temp);
+		add(this.actionPointLabel, "sg backlabel");
 		temp = new JLabel("Level:");
 		temp.setFont(PLAIN);
 		add(temp);

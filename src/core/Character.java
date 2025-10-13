@@ -118,7 +118,11 @@ public class Character {
 		}
 		return current;
 	}
-
+	
+	public boolean perkAvailable(Perk perk) {
+		return this.special[perk.getStatType()].getAttributeLevel() >= perk.getStatReq();
+	}
+	
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
@@ -130,4 +134,6 @@ public class Character {
 		}
 		return builder.toString();
 	}
+
+	
 }

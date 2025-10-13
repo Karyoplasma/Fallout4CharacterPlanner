@@ -7,6 +7,7 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JFrame;
 
+import components.PerkPanel;
 import components.SpecialPanel;
 import components.StatPanel;
 import core.CharacterCalc;
@@ -18,6 +19,7 @@ public class CharPlannerGUI {
 	private CharacterCalc character;
 	private SpecialPanel specialPanel;
 	private StatPanel statPanel;
+	private PerkPanel perkPanel;
 	/**
 	 * Launch the application.
 	 */
@@ -49,14 +51,15 @@ public class CharPlannerGUI {
 		frame.setBounds(100, 100, 1100, 1000);
 		frame.setMinimumSize(new Dimension(1100, 1000));
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.getContentPane().setLayout(new MigLayout("", "[][][grow]", "[][grow]"));
+		frame.getContentPane().setLayout(new MigLayout("", "[][][grow,fill]", "[][grow,fill]"));
 		
 		this.character = new CharacterCalc();
 		this.statPanel = new StatPanel(this.character);
-		this.specialPanel = new SpecialPanel(this.character, statPanel);
-		
+		this.specialPanel = new SpecialPanel(this.character, this.statPanel);
+		this.perkPanel = new PerkPanel(this.character, this.specialPanel, this.statPanel);
 		frame.getContentPane().add(this.specialPanel, "cell 0 0 1 1");
 		frame.getContentPane().add(this.statPanel, "cell 1 0 1 1");
+		frame.getContentPane().add(this.perkPanel, "cell 0 1 3 1,grow");
 	}
 	
 	public CharacterCalc getCharacter() {

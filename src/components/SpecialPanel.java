@@ -8,10 +8,13 @@ import core.CharacterCalc;
 import core.Stat;
 
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.EnumMap;
 
-public class SpecialPanel extends JPanel {
+public class SpecialPanel extends JPanel implements ActionListener {
 
 	private static final long serialVersionUID = 8417546657549869651L;
 	private static final Font PLAIN = new Font("Tahoma", Font.PLAIN, 14);
@@ -88,9 +91,10 @@ public class SpecialPanel extends JPanel {
         }
         remainingPointsLabel.setText(String.valueOf(calc.getRemaining()));
     }
-    
-    public boolean hasSpecialBook() {
-    	return this.specialBook.isSelected();
-    }
-}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		refresh();		
+	}
+ }
 

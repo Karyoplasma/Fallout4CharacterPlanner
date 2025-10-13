@@ -108,7 +108,7 @@ public enum Perk {
 	}
 
 	public String getDescription(int i) {
-		return description[i];
+		return description[Math.max(0, i-1)];
 	}
 
 }

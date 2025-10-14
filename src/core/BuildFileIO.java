@@ -40,6 +40,12 @@ public class BuildFileIO {
 			for (Map.Entry<SPECIAL, Boolean> bobblehead : state.bobbleheads.entrySet()) {
 				out.println(bobblehead.getKey().name() + "=" + bobblehead.getValue());
 			}
+			
+			out.println();
+			out.println("[TECH]");
+			out.println("remaining=" + state.remaining);
+			out.println("pointsUsed=" + state.pointsUsed);
+			out.println("specialBook=" + state.specialBook);
 		}
 	}
 
@@ -90,6 +96,19 @@ public class BuildFileIO {
 					break;
 				case "BOBBLEHEADS":
 					state.bobbleheads.put(SPECIAL.valueOf(key), Boolean.parseBoolean(value));
+					break;
+				case "TECH":
+					switch (key) {
+					case "remaining":
+						state.remaining = Integer.parseInt(value);
+						break;
+					case "pointsUsed":
+						state.pointsUsed = Integer.parseInt(value);
+						break;
+					case "specialBook":
+						state.specialBook = Boolean.parseBoolean(value);
+						break;
+					}
 					break;
 				}
 			}

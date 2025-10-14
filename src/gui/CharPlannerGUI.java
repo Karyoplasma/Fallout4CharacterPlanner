@@ -2,6 +2,7 @@ package gui;
 
 import java.awt.Dimension;
 import java.awt.EventQueue;
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -9,6 +10,7 @@ import java.io.StringWriter;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import components.PerkPanel;
 import components.SpecialPanel;
@@ -116,10 +118,16 @@ public class CharPlannerGUI {
 
 	public void saveBuild() {
 		JFileChooser chooser = new JFileChooser();
+		chooser.setFileFilter(new FileNameExtensionFilter("fo4build files", "fo4build"));
+		chooser.setCurrentDirectory(new File(System.getProperty("user.dir")));
 		if (chooser.showSaveDialog(frmFalloutCharacter) == JFileChooser.APPROVE_OPTION) {
 			try {
+				File selectedFile = chooser.getSelectedFile();
+				if (!selectedFile.getName().toLowerCase().endsWith(".fo4build")) {
+					selectedFile = new File(selectedFile.getAbsolutePath() + ".fo4build");
+				}
 				BuildState state = this.saveState();
-				BuildFileIO.exportBuildFile(state, chooser.getSelectedFile());
+				BuildFileIO.exportBuildFile(state, selectedFile);
 				;
 			} catch (IOException ex) {
 				JOptionPane.showMessageDialog(frmFalloutCharacter, "Error saving build:\n" + ex.getMessage());
@@ -129,6 +137,8 @@ public class CharPlannerGUI {
 
 	public void loadBuild() {
 		JFileChooser chooser = new JFileChooser();
+		chooser.setFileFilter(new FileNameExtensionFilter("fo4build files", "fo4build"));
+		chooser.setCurrentDirectory(new File(System.getProperty("user.dir")));
 		if (chooser.showOpenDialog(frmFalloutCharacter) == JFileChooser.APPROVE_OPTION) {
 			try {
 				BuildState state = BuildFileIO.importBuildFile(chooser.getSelectedFile());

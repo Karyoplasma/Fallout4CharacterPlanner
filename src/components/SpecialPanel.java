@@ -3,6 +3,8 @@ package components;
 import net.miginfocom.swing.MigLayout;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
+
+import core.BuildState;
 import core.CharacterCalc;
 import core.SPECIAL;
 import listeners.SpecialChangeListener;
@@ -18,6 +20,7 @@ public class SpecialPanel extends JPanel implements SpecialChangeListener {
 	private final JLabel remainingPointsLabel = new JLabel();
 	private final JCheckBox specialBook = new JCheckBox("S.P.E.C.I.A.L. Book");
 	private final CharacterCalc calc;
+	private boolean isLoading;
 
 	public SpecialPanel(CharacterCalc calc) {
 		this.calc = calc;
@@ -69,6 +72,9 @@ public class SpecialPanel extends JPanel implements SpecialChangeListener {
 		add(remainingPointsLabel, "span 3, left");
 		specialBook.setFont(BOLD);
 		specialBook.addActionListener(e -> {
+			if (this.isLoading) {
+				return;
+			}
 			calc.setSPECIALBook(this.specialBook.isSelected());
 			refreshRemainingPointsLabel();
 		});
@@ -76,7 +82,7 @@ public class SpecialPanel extends JPanel implements SpecialChangeListener {
 	}
 
 	private void refreshRemainingPointsLabel() {
-		remainingPointsLabel.setText(String.valueOf(calc.getRemaining()));	
+		remainingPointsLabel.setText(String.valueOf(calc.getRemaining()));
 	}
 
 	public void refresh() {
@@ -84,6 +90,20 @@ public class SpecialPanel extends JPanel implements SpecialChangeListener {
 			valueLabels.get(stat).setText(String.valueOf(calc.getAttributeLevel(stat)));
 		}
 		remainingPointsLabel.setText(String.valueOf(calc.getRemaining()));
+	}
+
+	public void saveState(BuildState state) {
+		state.specialBook = this.specialBook.isSelected();
+	}
+
+	public void loadState(BuildState state) {
+		this.isLoading = true;
+		try {
+			this.specialBook.setSelected(state.specialBook);
+		} finally {
+			this.isLoading = false;
+		}
+		refresh();
 	}
 
 	@Override

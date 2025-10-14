@@ -103,6 +103,19 @@ public class Character {
 		return this.special[perk.getStatType()].getAttributeLevel() >= perk.getStatReq();
 	}
 
+	public void saveState(BuildState state) {
+		state.specialLevels = Arrays.copyOf(this.special, 7);
+		state.perkLevels = new EnumMap<Perk, Integer>(this.perks);
+	}
+
+	public void loadState(BuildState state) {
+		this.special = state.specialLevels;
+		this.perks.clear();
+		for (Map.Entry<Perk, Integer> perkLevel : state.perkLevels.entrySet()) {
+			this.perks.put(perkLevel.getKey(), perkLevel.getValue());
+		}
+	}
+
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();

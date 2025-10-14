@@ -225,7 +225,19 @@ public class CharacterCalc implements PerkChangeListener, AttributeChangeListene
 	public boolean canLevelPerk(Perk perk) {
 		return character.perkAvailable(perk);
 	}
-
+	
+	public void saveState(BuildState state) {
+		this.character.saveState(state);
+		state.pointsUsed = this.pointsUsed;
+		state.remaining = this.remaining;
+	}
+	
+	public void loadState(BuildState state) {
+		this.character.loadState(state);
+		this.pointsUsed = state.pointsUsed;
+		this.remaining = state.remaining;
+	}
+	
 	public int getStat(Stat stat, boolean survival) {
 		switch (stat) {
 		case CARRYWEIGHT:

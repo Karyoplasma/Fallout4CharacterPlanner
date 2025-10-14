@@ -18,6 +18,8 @@ import javax.swing.SwingUtilities;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
+
+import core.BuildState;
 import core.CharacterCalc;
 import core.Perk;
 import core.SPECIAL;
@@ -27,12 +29,14 @@ import net.miginfocom.swing.MigLayout;
 
 public class PerkPanel extends JPanel implements SpecialChangeListener, PerkRemovalListener {
 
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = -1182378778622771289L;
 	private static final Font PLAIN = new Font("Tahoma", Font.PLAIN, 14);
 	private static final SPECIAL[] statValues = SPECIAL.values();
 	private final CharacterCalc calc;
+	private final EnumMap<SPECIAL, JCheckBox> bobbleheads = new EnumMap<SPECIAL, JCheckBox>(SPECIAL.class);
 	private final Map<Perk, JTextPane> perkPanes = new EnumMap<>(Perk.class);
 	private Map<SPECIAL, List<Perk>> groups;
+	private boolean isLoading = false;
 
 	public PerkPanel(CharacterCalc calc) {
 		this.calc = calc;
@@ -50,8 +54,12 @@ public class PerkPanel extends JPanel implements SpecialChangeListener, PerkRemo
 		for (SPECIAL stat : statValues) {
 			JCheckBox box = new JCheckBox(stat.getStat() + " Bobblehead");
 			box.addActionListener(e -> {
+				if (isLoading) {
+					return;
+				}
 				calc.setBobblehead(stat, box.isSelected());
 			});
+			this.bobbleheads.put(stat, box);
 			add(box);
 		}
 	}
@@ -140,6 +148,26 @@ public class PerkPanel extends JPanel implements SpecialChangeListener, PerkRemo
 		doc.setParagraphAttributes(0, doc.getLength(), center, false);
 
 		pane.setMargin(new Insets(20, 0, 0, 0));
+	}
+
+	public void saveState(BuildState state) {
+		state.bobbleheads = new EnumMap<SPECIAL, Boolean>(SPECIAL.class);
+		for (SPECIAL stat : SPECIAL.values()) {
+			state.bobbleheads.put(stat, bobbleheads.get(stat).isSelected());
+		}
+	}
+
+	public void loadState(BuildState state) {
+		this.isLoading = true;
+		try {
+			for (SPECIAL stat : SPECIAL.values()) {
+				bobbleheads.get(stat).setSelected(state.bobbleheads.get(stat));
+				colorPanels(stat, state.specialLevels[stat.ordinal()].getAttributeLevel());
+			}
+		} finally {
+			this.isLoading = false;
+		}
+		refresh();
 	}
 
 	@Override

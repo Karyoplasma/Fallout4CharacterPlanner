@@ -86,7 +86,7 @@ public enum Perk {
 		this.levelReq = levelReq;
 		this.description = description;
 	}
-
+	
 	public String getName() {
 		return name;
 	}
@@ -109,6 +109,11 @@ public enum Perk {
 
 	public String getDescription(int i) {
 		return description[Math.max(0, i-1)];
+	}
+	
+	@Override
+	public String toString() {
+		return this.name;
 	}
 
 }

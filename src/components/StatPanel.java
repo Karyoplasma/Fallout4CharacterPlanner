@@ -8,6 +8,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
+
+import core.BuildState;
 import core.CharacterCalc;
 import core.Stat;
 import listeners.StatChangeListener;
@@ -21,6 +23,7 @@ public class StatPanel extends JPanel implements StatChangeListener {
 	private final CharacterCalc calc;
 	private final JCheckBox survivalBox = new JCheckBox("Survival");
 	private final EnumMap<Stat, JLabel> valueLabels = new EnumMap<Stat, JLabel>(Stat.class);
+	private boolean isLoading = false;
 
 	public StatPanel(CharacterCalc calc) {
 		this.calc = calc;
@@ -41,6 +44,9 @@ public class StatPanel extends JPanel implements StatChangeListener {
 		setBorder(border);
 		this.survivalBox.setFont(BOLD);
 		this.survivalBox.addActionListener(e -> {
+			if (this.isLoading) {
+				return;
+			}
 			onStatChanged(Stat.CARRYWEIGHT);
 		});
 		add(survivalBox, "span 2, right");
@@ -57,6 +63,20 @@ public class StatPanel extends JPanel implements StatChangeListener {
 			this.valueLabels.put(stat, statLabel);
 			add(temp, "sg frontlabel");
 			add(statLabel, "sg backlabel");
+		}
+		refresh();
+	}
+
+	public void saveState(BuildState state) {
+		state.survival = this.survivalBox.isSelected();
+	}
+
+	public void loadState(BuildState state) {
+		this.isLoading = true;
+		try {
+			this.survivalBox.setSelected(state.survival);
+		} finally {
+			this.isLoading = false;
 		}
 		refresh();
 	}

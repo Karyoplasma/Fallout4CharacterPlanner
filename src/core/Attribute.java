@@ -13,6 +13,12 @@ public class Attribute {
 		this.extraLevel = 0;
 	}
 
+	public Attribute(SPECIAL stat, int level, int totalLevels) {
+		this.stat = stat;
+		this.baseLevel = level;
+		this.extraLevel = totalLevels - level;
+	}
+
 	public int getAttributeLevel() {
 		return this.baseLevel + this.extraLevel;
 	}
@@ -39,6 +45,10 @@ public class Attribute {
 
 	public SPECIAL getStat() {
 		return stat;
+	}
+
+	public String getLevelString() {
+		return this.baseLevel + "(" + this.getAttributeLevel() + ")";
 	}
 
 	@Override

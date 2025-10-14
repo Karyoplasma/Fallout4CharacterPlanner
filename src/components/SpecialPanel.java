@@ -3,98 +3,95 @@ package components;
 import net.miginfocom.swing.MigLayout;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
-
 import core.CharacterCalc;
-import core.Stat;
-
+import core.SPECIAL;
+import listeners.SpecialChangeListener;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.util.EnumMap;
 
-public class SpecialPanel extends JPanel implements ActionListener {
+public class SpecialPanel extends JPanel implements SpecialChangeListener {
 
 	private static final long serialVersionUID = 8417546657549869651L;
 	private static final Font PLAIN = new Font("Tahoma", Font.PLAIN, 14);
 	private static final Font BOLD = new Font("Tahoma", Font.BOLD, 14);
-	private final EnumMap<Stat, JLabel> valueLabels = new EnumMap<Stat, JLabel>(Stat.class);
-    private final JLabel remainingPointsLabel = new JLabel();
-    private final JCheckBox specialBook = new JCheckBox("S.P.E.C.I.A.L. Book");
-    private final CharacterCalc calc;
-    private final ActionListener updateListener;
+	private final EnumMap<SPECIAL, JLabel> valueLabels = new EnumMap<SPECIAL, JLabel>(SPECIAL.class);
+	private final JLabel remainingPointsLabel = new JLabel();
+	private final JCheckBox specialBook = new JCheckBox("S.P.E.C.I.A.L. Book");
+	private final CharacterCalc calc;
 
-    public SpecialPanel(CharacterCalc calc, ActionListener updateListener) {
-        this.calc = calc;
-        this.updateListener = updateListener;
-        initUI();
-        refresh();
-    }
+	public SpecialPanel(CharacterCalc calc) {
+		this.calc = calc;
+		initUI();
+		refresh();
+	}
 
-    private void initUI() {
-        setLayout(new MigLayout("insets 10, wrap 4", "[][grow 0][grow 0][grow 0]", "[]10[]"));
-        TitledBorder border = javax.swing.BorderFactory.createTitledBorder("S.P.E.C.I.A.L.");
-        border.setTitleFont(BOLD);
-        setBorder(border);
-        
-        for (Stat stat : Stat.values()) {
-        	JLabel statLabel = new JLabel(stat.getStat());
-        	statLabel.setFont(PLAIN);
-            add(statLabel);
+	private void initUI() {
+		setLayout(new MigLayout("insets 10, wrap 4", "[][grow 0][grow 0][grow 0]", "[]10[]"));
+		TitledBorder border = BorderFactory.createTitledBorder("S.P.E.C.I.A.L.");
+		border.setTitleFont(BOLD);
+		setBorder(border);
 
-            JButton minus = new JButton("<");
-            minus.setFont(PLAIN);
-            JButton plus = new JButton(">");
-            plus.setFont(PLAIN);
-            JLabel valueLabel = new JLabel("", SwingConstants.CENTER);
-            valueLabel.setFont(PLAIN);
-            
-            minus.setMargin(new Insets(0, 5, 0, 5));
-            plus.setMargin(new Insets(0, 5, 0, 5));
-            valueLabel.setPreferredSize(new Dimension(30, 20));
+		for (SPECIAL stat : SPECIAL.values()) {
+			JLabel statLabel = new JLabel(stat.getStat());
+			statLabel.setFont(PLAIN);
+			add(statLabel);
 
-            minus.addActionListener(e -> {
-                calc.unskillAttribute(stat);
-                refresh();
-                updateListener.actionPerformed(e);
-            });
-            plus.addActionListener(e -> {
-                calc.skillAttribute(stat);
-                refresh();
-                updateListener.actionPerformed(e);
-            });
+			JButton minus = new JButton("<");
+			minus.setFont(PLAIN);
+			JButton plus = new JButton(">");
+			plus.setFont(PLAIN);
+			JLabel valueLabel = new JLabel("", SwingConstants.CENTER);
+			valueLabel.setFont(PLAIN);
 
-            valueLabels.put(stat, valueLabel);
+			minus.setMargin(new Insets(0, 5, 0, 5));
+			plus.setMargin(new Insets(0, 5, 0, 5));
+			valueLabel.setPreferredSize(new Dimension(30, 20));
 
-            add(minus, "growx");
-            add(valueLabel, "growx");
-            add(plus, "growx, wrap");
-        }
-        JLabel remainingLabel = new JLabel("Points Remaining:");
-        remainingLabel.setFont(PLAIN);
-        add(remainingLabel);
-        remainingPointsLabel.setFont(PLAIN);
-        add(remainingPointsLabel, "span 3, left");
-        specialBook.setFont(BOLD);
-        specialBook.addActionListener(e -> {
-        	calc.setSPECIALBook(this.specialBook.isSelected());
-        	refresh();
-        	updateListener.actionPerformed(e);
-        });
-        add(specialBook);
-    }
+			minus.addActionListener(e -> {
+				calc.unskillAttribute(stat);
+				refreshRemainingPointsLabel();
+			});
+			plus.addActionListener(e -> {
+				calc.skillAttribute(stat);
+				refreshRemainingPointsLabel();
+			});
 
-    public void refresh() {
-        for (Stat stat : Stat.values()) {
-            valueLabels.get(stat).setText(String.valueOf(calc.getAttributeLevel(stat)));
-        }
-        remainingPointsLabel.setText(String.valueOf(calc.getRemaining()));
-    }
+			valueLabels.put(stat, valueLabel);
+
+			add(minus, "growx");
+			add(valueLabel, "growx");
+			add(plus, "growx, wrap");
+		}
+		JLabel remainingLabel = new JLabel("Points Remaining:");
+		remainingLabel.setFont(PLAIN);
+		add(remainingLabel);
+		remainingPointsLabel.setFont(PLAIN);
+		add(remainingPointsLabel, "span 3, left");
+		specialBook.setFont(BOLD);
+		specialBook.addActionListener(e -> {
+			calc.setSPECIALBook(this.specialBook.isSelected());
+			refreshRemainingPointsLabel();
+		});
+		add(specialBook);
+	}
+
+	private void refreshRemainingPointsLabel() {
+		remainingPointsLabel.setText(String.valueOf(calc.getRemaining()));	
+	}
+
+	public void refresh() {
+		for (SPECIAL stat : SPECIAL.values()) {
+			valueLabels.get(stat).setText(String.valueOf(calc.getAttributeLevel(stat)));
+		}
+		remainingPointsLabel.setText(String.valueOf(calc.getRemaining()));
+	}
 
 	@Override
-	public void actionPerformed(ActionEvent e) {
-		refresh();		
+	public void onSpecialChanged(SPECIAL stat, int newValue) {
+		if (!SwingUtilities.isEventDispatchThread()) {
+			SwingUtilities.invokeLater(() -> onSpecialChanged(stat, newValue));
+			return;
+		}
+		valueLabels.get(stat).setText(String.valueOf(newValue));
 	}
- }
-
+}

@@ -78,7 +78,7 @@ public enum Perk {
 	private int[] levelReq;
 	private String[] description;
 	
-	Perk(String name, int statType, int statReq, int ranks, int[] levelReq, String[] description){
+	Perk(String name, int statType, int statReq, int ranks, int[] levelReq, String[] description) {
 		this.name = name;
 		this.statType = statType;
 		this.statReq = statReq;

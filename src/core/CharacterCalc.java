@@ -1,17 +1,73 @@
 package core;
 
+import java.util.ArrayList;
+import java.util.List;
 import listeners.AttributeChangeListener;
 import listeners.PerkChangeListener;
+import listeners.PerkRemovalListener;
+import listeners.SpecialChangeListener;
+import listeners.StatChangeListener;
 
 public class CharacterCalc implements PerkChangeListener, AttributeChangeListener {
 
 	private int remaining, pointsUsed;
 	private Character character;
-
+	private final List<StatChangeListener> statChangeListeners;
+	private final List<SpecialChangeListener> specialChangeListeners;
+	private final List<PerkRemovalListener> perkRemovalListeners;
+	
 	public CharacterCalc() {
+		this.statChangeListeners = new ArrayList<StatChangeListener>();
+		this.specialChangeListeners = new ArrayList<SpecialChangeListener>();
+		this.perkRemovalListeners = new ArrayList<PerkRemovalListener>();
 		this.remaining = 21;
 		this.pointsUsed = 0;
 		this.character = new Character(this, this);
+		
+	}
+	
+	public void addPerkRemovalListener(PerkRemovalListener perkRemovalListener) {
+		this.perkRemovalListeners.add(perkRemovalListener);
+	}
+
+	public void removeStatChangeListener(PerkRemovalListener perkRemovalListener) {
+		this.perkRemovalListeners.remove(perkRemovalListener);
+	}
+	
+	public void addStatChangeListener(StatChangeListener statChangeListener) {
+		this.statChangeListeners.add(statChangeListener);
+	}
+
+	public void removeStatChangeListener(StatChangeListener statChangeListener) {
+		this.statChangeListeners.remove(statChangeListener);
+	}
+
+	public void addSpecialChangeListener(SpecialChangeListener specialChangeListener) {
+		this.specialChangeListeners.add(specialChangeListener);
+	}
+
+	public void removeSpecialChangeListener(SpecialChangeListener specialChangeListener) {
+		this.specialChangeListeners.remove(specialChangeListener);
+	}
+	
+	private void notifyPerkRemovalListeners(Perk perk) {
+		for (PerkRemovalListener listener : this.perkRemovalListeners) {
+			listener.onPerkRemoved(perk);
+		}
+	}
+	
+	private void notifyStatChangeListeners(Stat... stats) {
+		for (StatChangeListener listener : this.statChangeListeners) {
+			for (Stat stat : stats) {
+				listener.onStatChanged(stat);
+			}
+		}
+	}
+
+	private void notifySpecialChangeListeners(SPECIAL special, int newValue) {
+		for (SpecialChangeListener listener : this.specialChangeListeners) {
+			listener.onSpecialChanged(special, newValue);
+		}
 	}
 
 	@Override
@@ -30,14 +86,29 @@ public class CharacterCalc implements PerkChangeListener, AttributeChangeListene
 				}
 			}
 		}
-		System.out.printf("%s - old: %d, new: %d, remaining: %d, pointsUsed: %d\n", attribute.getStat(), oldValue,
-				newValue, remaining, pointsUsed);
+		SPECIAL special = attribute.getStat();
+		this.notifySpecialChangeListeners(special, newValue);
+		switch (special) {
+		case Agility:
+			this.notifyStatChangeListeners(Stat.ACTIONPOINTS, Stat.HITPOINTS, Stat.LEVEL);
+			break;
+		case Endurance:
+			this.notifyStatChangeListeners(Stat.HITPOINTS, Stat.LEVEL);
+			break;
+		case Strength:
+			this.notifyStatChangeListeners(Stat.CARRYWEIGHT, Stat.HITPOINTS, Stat.LEVEL);
+			break;
+		default:
+			this.notifyStatChangeListeners(Stat.HITPOINTS, Stat.LEVEL);
+			break;
+		}
 	}
 
 	@Override
 	public void perkChanged(Perk perk, int oldValue, int newValue, boolean wasRemoved) {
 		if (wasRemoved) {
 			pointsUsed -= oldValue;
+			this.notifyPerkRemovalListeners(perk);
 		} else {
 			if (oldValue > newValue) {
 				pointsUsed--;
@@ -48,16 +119,24 @@ public class CharacterCalc implements PerkChangeListener, AttributeChangeListene
 		switch (perk) {
 		case Vans:
 			if (newValue == 2) {
-				this.character.boostAttribute(Stat.Perception, 2);
+				this.character.boostAttribute(SPECIAL.Perception, 2);
 			} else {
 				if (oldValue == 2)
-					this.character.boostAttribute(Stat.Perception, -2);
+					this.character.boostAttribute(SPECIAL.Perception, -2);
 			}
+			this.notifyStatChangeListeners(Stat.HITPOINTS, Stat.LEVEL);
+			break;
+		case StrongBack:
+			this.notifyStatChangeListeners(Stat.HITPOINTS, Stat.CARRYWEIGHT, Stat.LEVEL);
+			break;
+		case LoneWanderer:
+			this.notifyStatChangeListeners(Stat.HITPOINTS, Stat.ACTIONPOINTS, Stat.CARRYWEIGHT, Stat.LEVEL);
 			break;
 		default:
+			this.notifyStatChangeListeners(Stat.HITPOINTS, Stat.LEVEL);
 			break;
 		}
-		System.out.println(character);
+
 	}
 
 	public void setSPECIALBook(boolean hasBook) {
@@ -72,9 +151,10 @@ public class CharacterCalc implements PerkChangeListener, AttributeChangeListene
 				pointsUsed++;
 			}
 		}
+		this.notifyStatChangeListeners(Stat.LEVEL, Stat.HITPOINTS);
 	}
 
-	public void setBobblehead(Stat attribute, boolean active) {
+	public void setBobblehead(SPECIAL attribute, boolean active) {
 		if (active) {
 			this.character.boostAttribute(attribute, 1);
 		} else {
@@ -85,8 +165,8 @@ public class CharacterCalc implements PerkChangeListener, AttributeChangeListene
 	public double getHitPoints() {
 		int perkModifier = this.character.getPerkLevel(Perk.Lifegiver) * 20;
 		int level = Math.max(this.character.getMaximumPerkLevelRequirement(), this.pointsUsed + 1);
-		double hitPoints = Math.floor(80 + perkModifier + (this.character.getAttributeLevel(Stat.Endurance) * 5)
-				+ (level - 1) * ((this.character.getAttributeLevel(Stat.Endurance) / 2) + 2.5));
+		double hitPoints = Math.floor(80 + perkModifier + (this.character.getAttributeLevel(SPECIAL.Endurance) * 5)
+				+ (level - 1) * ((this.character.getAttributeLevel(SPECIAL.Endurance) / 2) + 2.5));
 		return hitPoints;
 	}
 
@@ -95,9 +175,9 @@ public class CharacterCalc implements PerkChangeListener, AttributeChangeListene
 		int perkModifier = Math.min(this.character.getPerkLevel(Perk.StrongBack), 2) * 25;
 		perkModifier += Math.min(this.character.getPerkLevel(Perk.LoneWanderer), 2) * 50;
 		if (survival) {
-			carryWeight = 75 + perkModifier + (10 * (this.character.getAttributeLevel(Stat.Strength)));
+			carryWeight = 75 + perkModifier + (10 * (this.character.getAttributeLevel(SPECIAL.Strength)));
 		} else {
-			carryWeight = 200 + perkModifier + (10 * (this.character.getAttributeLevel(Stat.Strength)));
+			carryWeight = 200 + perkModifier + (10 * (this.character.getAttributeLevel(SPECIAL.Strength)));
 		}
 		return carryWeight;
 	}
@@ -107,7 +187,7 @@ public class CharacterCalc implements PerkChangeListener, AttributeChangeListene
 		if (this.character.getPerkLevel(Perk.LoneWanderer) == 4) {
 			perkModifier += 25;
 		}
-		return 60 + perkModifier + this.character.getAttributeLevel(Stat.Agility) * 10;
+		return 60 + perkModifier + this.character.getAttributeLevel(SPECIAL.Agility) * 10;
 	}
 
 	public int getRemaining() {
@@ -115,60 +195,47 @@ public class CharacterCalc implements PerkChangeListener, AttributeChangeListene
 	}
 
 	public int getLevelNeeded() {
-		int ret = Math.max(this.character.getMaximumPerkLevelRequirement(), this.pointsUsed + 1);
-		System.out.println("getLevelNeeded(): " + ret);
-		return ret;
+		return Math.max(this.character.getMaximumPerkLevelRequirement(), this.pointsUsed + 1);
 	}
-	
-	public int getAttributeLevel(Stat stat) {
+
+	public int getAttributeLevel(SPECIAL stat) {
 		return this.character.getAttributeLevel(stat);
 	}
-	
-	public void skillAttribute(Stat stat) {
-		this.character.skillAttribute(stat);	
+
+	public void skillAttribute(SPECIAL stat) {
+		this.character.skillAttribute(stat);
 	}
-	
-	public void unskillAttribute(Stat stat) {
-		this.character.unskillAttribute(stat);	
+
+	public void unskillAttribute(SPECIAL stat) {
+		this.character.unskillAttribute(stat);
 	}
-	
+
 	public void skillPerk(Perk perk) {
 		this.character.skillPerk(perk);
 	}
-	
+
 	public void unskillPerk(Perk perk) {
 		this.character.unskillPerk(perk);
 	}
-	
+
 	public int getPerkLevel(Perk perk) {
 		return character.getPerkLevel(perk);
 	}
-	
+
 	public boolean canLevelPerk(Perk perk) {
 		return character.perkAvailable(perk);
 	}
-//	public static void main(String[] args) {
-//		CharacterCalc calc = new CharacterCalc();
-//		System.out.println(calc.getCarryWeight(true));
-//		calc.character.skillAttribute(Stat.Strength);
-//		calc.character.skillAttribute(Stat.Strength);
-//		calc.character.skillAttribute(Stat.Strength);
-//		calc.character.skillAttribute(Stat.Strength);
-//		calc.character.skillAttribute(Stat.Strength);
-//		calc.character.skillAttribute(Stat.Strength);
-//		calc.character.skillAttribute(Stat.Strength);
-//		calc.character.skillAttribute(Stat.Strength);
-//		calc.character.skillAttribute(Stat.Strength);
-//		calc.character.skillAttribute(Stat.Strength);
-//		calc.character.skillAttribute(Stat.Strength);
-//		calc.character.unskillAttribute(Stat.Strength);
-//		calc.character.skillPerk(Perk.Vans);
-//		calc.character.skillPerk(Perk.Vans);
-//		calc.character.unskillAttribute(Stat.Perception);
-//		calc.character.skillPerk(Perk.Rifleman);
-//		calc.character.skillPerk(Perk.Rifleman);
-//		calc.character.skillPerk(Perk.Rifleman);
-//		calc.character.unskillPerk(Perk.Vans);
-//		System.out.println(calc.character);
-//	}
+
+	public int getStat(Stat stat, boolean survival) {
+		switch (stat) {
+		case CARRYWEIGHT:
+			return this.getCarryWeight(survival);
+		case ACTIONPOINTS:
+			return this.getActionPoints();
+		case LEVEL:
+			return this.getLevelNeeded();
+		default:
+			return (int) this.getHitPoints();
+		}
+	}
 }

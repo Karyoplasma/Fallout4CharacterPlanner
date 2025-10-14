@@ -1,77 +1,77 @@
 package components;
 
 import java.awt.Font;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
+import java.util.EnumMap;
+import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
-
 import core.CharacterCalc;
+import core.Stat;
+import listeners.StatChangeListener;
 import net.miginfocom.swing.MigLayout;
 
-public class StatPanel extends JPanel implements ActionListener {
-	
+public class StatPanel extends JPanel implements StatChangeListener {
+
 	private static final long serialVersionUID = -7509581031372886703L;
 	private static final Font PLAIN = new Font("Tahoma", Font.PLAIN, 14);
 	private static final Font BOLD = new Font("Tahoma", Font.BOLD, 14);
 	private final CharacterCalc calc;
-	private final JLabel carryWeightLabel, hpLabel, actionPointLabel, levelRequiredLabel;
 	private final JCheckBox survivalBox = new JCheckBox("Survival");
+	private final EnumMap<Stat, JLabel> valueLabels = new EnumMap<Stat, JLabel>(Stat.class);
 
 	public StatPanel(CharacterCalc calc) {
 		this.calc = calc;
-		this.carryWeightLabel = new JLabel();
-		this.hpLabel = new JLabel();
-		this.levelRequiredLabel = new JLabel();
-		this.actionPointLabel = new JLabel();
 		initUI();
 	}
 
 	private void refresh() {
-		this.carryWeightLabel.setText(String.valueOf(calc.getCarryWeight(survivalBox.isSelected())));
-		this.hpLabel.setText(String.valueOf((int) calc.getHitPoints()));
-		this.actionPointLabel.setText(String.valueOf(calc.getActionPoints()));
-		this.levelRequiredLabel.setText(String.valueOf(calc.getLevelNeeded()));
+		boolean survival = this.survivalBox.isSelected();
+		for (Stat stat : Stat.values()) {
+			valueLabels.get(stat).setText(String.valueOf(calc.getStat(stat, survival)));
+		}
 	}
 
 	private void initUI() {
 		setLayout(new MigLayout("insets 10, wrap 2", "[grow][min:60:60]", "[]10[]10[]10[]10[]"));
-		TitledBorder border = javax.swing.BorderFactory.createTitledBorder("Character Stats");
+		TitledBorder border = BorderFactory.createTitledBorder("Character Stats");
 		border.setTitleFont(BOLD);
 		setBorder(border);
-		this.carryWeightLabel.setFont(PLAIN);
-		this.hpLabel.setFont(PLAIN);
-		this.actionPointLabel.setFont(PLAIN);
-		this.levelRequiredLabel.setFont(BOLD);
 		this.survivalBox.setFont(BOLD);
 		this.survivalBox.addActionListener(e -> {
-			carryWeightLabel.setText(String.valueOf(calc.getCarryWeight(survivalBox.isSelected())));
+			onStatChanged(Stat.CARRYWEIGHT);
 		});
 		add(survivalBox, "span 2, right");
-		JLabel temp = new JLabel("Hit Points:");
-		temp.setFont(PLAIN);
-		add(temp, "sg frontlabel");
-		add(this.hpLabel, "sg backlabel");
-		temp = new JLabel("Carry Weight:");
-		temp.setFont(PLAIN);
-		add(temp);
-		add(this.carryWeightLabel, "sg backlabel");
-		temp = new JLabel("Action Points:");
-		temp.setFont(PLAIN);
-		add(temp);
-		add(this.actionPointLabel, "sg backlabel");
-		temp = new JLabel("Level:");
-		temp.setFont(PLAIN);
-		add(temp);
-		add(this.levelRequiredLabel, "sg backlabel");
+		for (Stat stat : Stat.values()) {
+			JLabel temp = new JLabel(stat.toString());
+			JLabel statLabel = new JLabel();
+			if (stat == Stat.LEVEL) {
+				statLabel.setFont(BOLD);
+				temp.setFont(BOLD);
+			} else {
+				statLabel.setFont(PLAIN);
+				temp.setFont(PLAIN);
+			}
+			this.valueLabels.put(stat, statLabel);
+			add(temp, "sg frontlabel");
+			add(statLabel, "sg backlabel");
+		}
 		refresh();
 	}
 
 	@Override
-	public void actionPerformed(ActionEvent e) {
-		this.refresh();
+	public void onStatChanged(Stat... stats) {
+		if (!SwingUtilities.isEventDispatchThread()) {
+			SwingUtilities.invokeLater(() -> onStatChanged(stats));
+			return;
+		}
+		boolean survival = this.survivalBox.isSelected();
+		for (Stat stat : stats) {
+			JLabel label = valueLabels.get(stat);
+			label.setText(String.valueOf(calc.getStat(stat, survival)));
+		}
 	}
+
 }

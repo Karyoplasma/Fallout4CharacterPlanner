@@ -12,30 +12,18 @@ public class Character {
 	private Attribute[] special = new Attribute[7];
 	private final Map<Perk, Integer> perks = new EnumMap<>(Perk.class);
 
-	@Deprecated
-	public Character() {
-		this.special[0] = new Attribute(Stat.Strength, 1);
-		this.special[1] = new Attribute(Stat.Perception, 1);
-		this.special[2] = new Attribute(Stat.Endurance, 1);
-		this.special[3] = new Attribute(Stat.Charisma, 1);
-		this.special[4] = new Attribute(Stat.Intelligence, 1);
-		this.special[5] = new Attribute(Stat.Agility, 1);
-		this.special[6] = new Attribute(Stat.Luck, 1);
-	}
-
 	public Character(PerkChangeListener perkListener, AttributeChangeListener specialListener) {
-		this.special[0] = new Attribute(Stat.Strength, 1);
-		this.special[1] = new Attribute(Stat.Perception, 1);
-		this.special[2] = new Attribute(Stat.Endurance, 1);
-		this.special[3] = new Attribute(Stat.Charisma, 1);
-		this.special[4] = new Attribute(Stat.Intelligence, 1);
-		this.special[5] = new Attribute(Stat.Agility, 1);
-		this.special[6] = new Attribute(Stat.Luck, 1);
+		this.special[0] = new Attribute(SPECIAL.Strength, 1);
+		this.special[1] = new Attribute(SPECIAL.Perception, 1);
+		this.special[2] = new Attribute(SPECIAL.Endurance, 1);
+		this.special[3] = new Attribute(SPECIAL.Charisma, 1);
+		this.special[4] = new Attribute(SPECIAL.Intelligence, 1);
+		this.special[5] = new Attribute(SPECIAL.Agility, 1);
+		this.special[6] = new Attribute(SPECIAL.Luck, 1);
 		this.perkListener = perkListener;
 		this.specialListener = specialListener;
-
 	}
-	
+
 	public void removeStalePerks() {
 		for (Perk perk : perks.keySet()) {
 			if (this.special[perk.getStatType()].getAttributeLevel() < perk.getStatReq()) {
@@ -43,13 +31,13 @@ public class Character {
 			}
 		}
 	}
-	
+
 	private void removePerk(Perk perk) {
 		int currentLevel = perks.getOrDefault(perk, 0);
 		perks.remove(perk);
 		perkListener.perkChanged(perk, currentLevel, 0, true);
 	}
-	
+
 	public void skillPerk(Perk perk) {
 		if (perk.getStatReq() > this.special[perk.getStatType()].getAttributeLevel()) {
 			return;
@@ -76,7 +64,7 @@ public class Character {
 		}
 	}
 
-	public void skillAttribute(Stat attribute) {
+	public void skillAttribute(SPECIAL attribute) {
 		Attribute toChange = this.special[attribute.ordinal()];
 		int oldValue = toChange.getAttributeLevel();
 		if (toChange.skillAttribute()) {
@@ -84,7 +72,7 @@ public class Character {
 		}
 	}
 
-	public void unskillAttribute(Stat attribute) {
+	public void unskillAttribute(SPECIAL attribute) {
 		Attribute toChange = this.special[attribute.ordinal()];
 		int oldValue = toChange.getAttributeLevel();
 		if (toChange.unskillAttribute()) {
@@ -92,7 +80,7 @@ public class Character {
 		}
 	}
 
-	public void boostAttribute(Stat attribute, int boost) {
+	public void boostAttribute(SPECIAL attribute, int boost) {
 		Attribute toChange = this.special[attribute.ordinal()];
 		int oldValue = toChange.getAttributeLevel();
 		toChange.boostAttribute(boost);
@@ -103,26 +91,18 @@ public class Character {
 		return this.perks.getOrDefault(perk, 0);
 	}
 
-	public int getAttributeLevel(Stat attribute) {
+	public int getAttributeLevel(SPECIAL attribute) {
 		return this.special[attribute.ordinal()].getAttributeLevel();
 	}
 
 	public int getMaximumPerkLevelRequirement() {
-		int maximum = 0;
-		int current = -1;
-		for (Map.Entry<Perk, Integer> entry : perks.entrySet()) {
-			current = entry.getKey().getLevelReq(entry.getValue());
-			if (current > maximum) {
-				maximum = current;
-			}
-		}
-		return current;
+		return perks.entrySet().stream().mapToInt(e -> e.getKey().getLevelReq(e.getValue())).max().orElse(1);
 	}
-	
+
 	public boolean perkAvailable(Perk perk) {
 		return this.special[perk.getStatType()].getAttributeLevel() >= perk.getStatReq();
 	}
-	
+
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
@@ -134,6 +114,4 @@ public class Character {
 		}
 		return builder.toString();
 	}
-
-	
 }

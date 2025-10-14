@@ -2,11 +2,7 @@ package gui;
 
 import java.awt.Dimension;
 import java.awt.EventQueue;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
 import javax.swing.JFrame;
-
 import components.PerkPanel;
 import components.SpecialPanel;
 import components.StatPanel;
@@ -20,6 +16,7 @@ public class CharPlannerGUI {
 	private SpecialPanel specialPanel;
 	private StatPanel statPanel;
 	private PerkPanel perkPanel;
+
 	/**
 	 * Launch the application.
 	 */
@@ -48,22 +45,21 @@ public class CharPlannerGUI {
 	 */
 	private void initialize() {
 		frame = new JFrame();
-		frame.setBounds(100, 100, 1100, 1000);
+		frame.setBounds(30, 30, 1100, 1000);
 		frame.setMinimumSize(new Dimension(1100, 1000));
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(new MigLayout("", "[][][grow,fill]", "[][grow,fill]"));
-		
+
 		this.character = new CharacterCalc();
 		this.statPanel = new StatPanel(this.character);
-		this.specialPanel = new SpecialPanel(this.character, this.statPanel);
-		this.perkPanel = new PerkPanel(this.character, this.specialPanel, this.statPanel);
+		this.specialPanel = new SpecialPanel(this.character);
+		this.perkPanel = new PerkPanel(this.character);
+		this.character.addSpecialChangeListener(specialPanel);
+		this.character.addSpecialChangeListener(perkPanel);
+		this.character.addStatChangeListener(statPanel);
+		this.character.addPerkRemovalListener(perkPanel);
 		frame.getContentPane().add(this.specialPanel, "cell 0 0 1 1");
 		frame.getContentPane().add(this.statPanel, "cell 1 0 1 1");
 		frame.getContentPane().add(this.perkPanel, "cell 0 1 3 1,grow");
 	}
-	
-	public CharacterCalc getCharacter() {
-		return this.character;
-	}
-
 }

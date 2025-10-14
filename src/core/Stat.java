@@ -1,21 +1,19 @@
 package core;
 
 public enum Stat {
-	Strength("Strength"),
-	Perception("Perception"),
-	Endurance("Endurance"),
-	Charisma("Charisma"),
-	Intelligence("Intelligence"),
-	Agility("Agility"),
-	Luck("Luck");
-	
-	private String stat;
-	
-	Stat(String stat){
-		this.stat = stat;
+	HITPOINTS("HitPoints:"),
+	CARRYWEIGHT("Carry Weight:"),
+	ACTIONPOINTS("Action Points:"),
+	LEVEL("Level:");
+
+	private String name;
+
+	private Stat(String name) {
+		this.name = name;
 	}
-	
-	public String getStat(){
-		return this.stat;
+
+	@Override
+	public String toString() {
+		return this.name;
 	}
 }

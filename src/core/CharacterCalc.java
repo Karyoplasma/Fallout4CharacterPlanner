@@ -86,7 +86,7 @@ public class CharacterCalc implements PerkChangeListener, AttributeChangeListene
 				}
 			}
 		}
-		SPECIAL special = attribute.getStat();
+		SPECIAL special = attribute.getSPECIAL();
 		this.notifySpecialChangeListeners(special, newValue);
 		switch (special) {
 		case Agility:

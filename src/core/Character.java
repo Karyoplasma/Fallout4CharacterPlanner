@@ -26,7 +26,7 @@ public class Character {
 
 	public void removeStalePerks() {
 		for (Perk perk : perks.keySet()) {
-			if (this.special[perk.getStatType()].getAttributeLevel() < perk.getStatReq()) {
+			if (this.special[perk.getSpecialTypeIndex()].getAttributeLevel() < perk.getSpecialRequirement()) {
 				this.removePerk(perk);
 			}
 		}
@@ -39,7 +39,7 @@ public class Character {
 	}
 
 	public void skillPerk(Perk perk) {
-		if (perk.getStatReq() > this.special[perk.getStatType()].getAttributeLevel()) {
+		if (perk.getSpecialRequirement() > this.special[perk.getSpecialTypeIndex()].getAttributeLevel()) {
 			return;
 		}
 		int currentValue = perks.getOrDefault(perk, 0);
@@ -64,24 +64,24 @@ public class Character {
 		}
 	}
 
-	public void skillAttribute(SPECIAL attribute) {
-		Attribute toChange = this.special[attribute.ordinal()];
+	public void skillAttribute(SPECIAL special) {
+		Attribute toChange = this.special[special.ordinal()];
 		int oldValue = toChange.getAttributeLevel();
 		if (toChange.skillAttribute()) {
 			specialListener.attributeChanged(toChange, oldValue, oldValue + 1, false);
 		}
 	}
 
-	public void unskillAttribute(SPECIAL attribute) {
-		Attribute toChange = this.special[attribute.ordinal()];
+	public void unskillAttribute(SPECIAL special) {
+		Attribute toChange = this.special[special.ordinal()];
 		int oldValue = toChange.getAttributeLevel();
 		if (toChange.unskillAttribute()) {
 			specialListener.attributeChanged(toChange, oldValue, oldValue - 1, false);
 		}
 	}
 
-	public void boostAttribute(SPECIAL attribute, int boost) {
-		Attribute toChange = this.special[attribute.ordinal()];
+	public void boostAttribute(SPECIAL special, int boost) {
+		Attribute toChange = this.special[special.ordinal()];
 		int oldValue = toChange.getAttributeLevel();
 		toChange.boostAttribute(boost);
 		specialListener.attributeChanged(toChange, oldValue, oldValue + boost, true);
@@ -91,8 +91,8 @@ public class Character {
 		return this.perks.getOrDefault(perk, 0);
 	}
 
-	public int getAttributeLevel(SPECIAL attribute) {
-		return this.special[attribute.ordinal()].getAttributeLevel();
+	public int getAttributeLevel(SPECIAL special) {
+		return this.special[special.ordinal()].getAttributeLevel();
 	}
 
 	public int getMaximumPerkLevelRequirement() {
@@ -100,7 +100,7 @@ public class Character {
 	}
 
 	public boolean perkAvailable(Perk perk) {
-		return this.special[perk.getStatType()].getAttributeLevel() >= perk.getStatReq();
+		return this.special[perk.getSpecialTypeIndex()].getAttributeLevel() >= perk.getSpecialRequirement();
 	}
 
 	public void saveState(BuildState state) {

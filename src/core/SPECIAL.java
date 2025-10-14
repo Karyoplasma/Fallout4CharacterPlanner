@@ -8,14 +8,14 @@ public enum SPECIAL {
 	Intelligence("Intelligence"),
 	Agility("Agility"),
 	Luck("Luck");
+	
+	private String flavorName;
 
-	private String stat;
-
-	SPECIAL(String stat) {
-		this.stat = stat;
+	SPECIAL(String flavorName) {
+		this.flavorName = flavorName;
 	}
-
-	public String getStat() {
-		return this.stat;
+	
+	public String getFlavorName() {
+		return this.flavorName;
 	}
 }

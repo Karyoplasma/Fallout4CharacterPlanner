@@ -34,8 +34,8 @@ public class SpecialPanel extends JPanel implements SpecialChangeListener {
 		border.setTitleFont(BOLD);
 		setBorder(border);
 
-		for (SPECIAL stat : SPECIAL.values()) {
-			JLabel statLabel = new JLabel(stat.getStat());
+		for (SPECIAL special : SPECIAL.values()) {
+			JLabel statLabel = new JLabel(special.getFlavorName());
 			statLabel.setFont(PLAIN);
 			add(statLabel);
 
@@ -51,15 +51,15 @@ public class SpecialPanel extends JPanel implements SpecialChangeListener {
 			valueLabel.setPreferredSize(new Dimension(30, 20));
 
 			minus.addActionListener(e -> {
-				calc.unskillAttribute(stat);
+				calc.unskillAttribute(special);
 				refreshRemainingPointsLabel();
 			});
 			plus.addActionListener(e -> {
-				calc.skillAttribute(stat);
+				calc.skillAttribute(special);
 				refreshRemainingPointsLabel();
 			});
 
-			valueLabels.put(stat, valueLabel);
+			valueLabels.put(special, valueLabel);
 
 			add(minus, "growx");
 			add(valueLabel, "growx");
@@ -86,8 +86,8 @@ public class SpecialPanel extends JPanel implements SpecialChangeListener {
 	}
 
 	public void refresh() {
-		for (SPECIAL stat : SPECIAL.values()) {
-			valueLabels.get(stat).setText(String.valueOf(calc.getAttributeLevel(stat)));
+		for (SPECIAL special : SPECIAL.values()) {
+			valueLabels.get(special).setText(String.valueOf(calc.getAttributeLevel(special)));
 		}
 		remainingPointsLabel.setText(String.valueOf(calc.getRemaining()));
 	}

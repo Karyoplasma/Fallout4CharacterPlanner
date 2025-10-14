@@ -31,7 +31,6 @@ public class PerkPanel extends JPanel implements SpecialChangeListener, PerkRemo
 
 	private static final long serialVersionUID = -1182378778622771289L;
 	private static final Font PLAIN = new Font("Tahoma", Font.PLAIN, 14);
-	private static final SPECIAL[] statValues = SPECIAL.values();
 	private final CharacterCalc calc;
 	private final EnumMap<SPECIAL, JCheckBox> bobbleheads = new EnumMap<SPECIAL, JCheckBox>(SPECIAL.class);
 	private final Map<Perk, JTextPane> perkPanes = new EnumMap<>(Perk.class);
@@ -44,37 +43,38 @@ public class PerkPanel extends JPanel implements SpecialChangeListener, PerkRemo
 		setLayout(new MigLayout("insets 6, gap 0, wrap 7", colSpec, "[]0[]"));
 		initBobbleheads();
 		initPerksGrid();
-		for (SPECIAL s : statValues) {
-			this.colorPanels(s, 1);
+		for (SPECIAL special : SPECIAL.values()) {
+			this.colorPanels(special, 1);
 		}
 		refresh();
 	}
 
 	private void initBobbleheads() {
-		for (SPECIAL stat : statValues) {
-			JCheckBox box = new JCheckBox(stat.getStat() + " Bobblehead");
+		for (SPECIAL special : SPECIAL.values()) {
+			JCheckBox box = new JCheckBox(special.getFlavorName() + " Bobblehead");
 			box.addActionListener(e -> {
 				if (isLoading) {
 					return;
 				}
-				calc.setBobblehead(stat, box.isSelected());
+				calc.setBobblehead(special, box.isSelected());
 			});
-			this.bobbleheads.put(stat, box);
+			this.bobbleheads.put(special, box);
 			add(box);
 		}
 	}
 
 	private void initPerksGrid() {
 		this.groups = new EnumMap<SPECIAL, List<Perk>>(SPECIAL.class);
-		for (SPECIAL s : statValues) {
-			this.groups.put(s, new ArrayList<Perk>());
-		}
-
-		for (Perk p : Perk.values()) {
-			this.groups.get(statValues[p.getStatType()]).add(p);
-		}
-
+		SPECIAL[] specialValues = SPECIAL.values();
 		int maxRows = 10;
+		
+		for (SPECIAL special : specialValues) {
+			this.groups.put(special, new ArrayList<Perk>());
+		}
+
+		for (Perk perk : Perk.values()) {
+			this.groups.get(specialValues[perk.getSpecialTypeIndex()]).add(perk);
+		}
 
 		for (Perk perk : Perk.values()) {
 			JTextPane pane = new JTextPane();
@@ -97,9 +97,9 @@ public class PerkPanel extends JPanel implements SpecialChangeListener, PerkRemo
 			perkPanes.put(perk, pane);
 		}
 		for (int row = 0; row < maxRows; row++) {
-			for (int col = 0; col < statValues.length; col++) {
-				SPECIAL stat = statValues[col];
-				List<Perk> list = groups.get(stat);
+			for (int col = 0; col < specialValues.length; col++) {
+				SPECIAL special = specialValues[col];
+				List<Perk> list = groups.get(special);
 				if (row < list.size()) {
 					Perk perk = list.get(row);
 					JTextPane pane = perkPanes.get(perk);
@@ -152,17 +152,17 @@ public class PerkPanel extends JPanel implements SpecialChangeListener, PerkRemo
 
 	public void saveState(BuildState state) {
 		state.bobbleheads = new EnumMap<SPECIAL, Boolean>(SPECIAL.class);
-		for (SPECIAL stat : SPECIAL.values()) {
-			state.bobbleheads.put(stat, bobbleheads.get(stat).isSelected());
+		for (SPECIAL special : SPECIAL.values()) {
+			state.bobbleheads.put(special, bobbleheads.get(special).isSelected());
 		}
 	}
 
 	public void loadState(BuildState state) {
 		this.isLoading = true;
 		try {
-			for (SPECIAL stat : SPECIAL.values()) {
-				bobbleheads.get(stat).setSelected(state.bobbleheads.get(stat));
-				colorPanels(stat, state.specialLevels[stat.ordinal()].getAttributeLevel());
+			for (SPECIAL special : SPECIAL.values()) {
+				bobbleheads.get(special).setSelected(state.bobbleheads.get(special));
+				colorPanels(special, state.specialLevels[special.ordinal()].getAttributeLevel());
 			}
 		} finally {
 			this.isLoading = false;

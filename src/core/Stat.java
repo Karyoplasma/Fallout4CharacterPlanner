@@ -5,15 +5,15 @@ public enum Stat {
 	CARRYWEIGHT("Carry Weight:"),
 	ACTIONPOINTS("Action Points:"),
 	LEVEL("Level:");
-
-	private String name;
-
-	private Stat(String name) {
-		this.name = name;
+	
+	private String flavorName;
+	
+	private Stat(String flavorName) {
+		this.flavorName = flavorName;
 	}
 
 	@Override
 	public String toString() {
-		return this.name;
+		return this.flavorName;
 	}
 }

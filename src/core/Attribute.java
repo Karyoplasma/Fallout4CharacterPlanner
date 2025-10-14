@@ -4,19 +4,19 @@ public class Attribute {
 
 	private static final int MIN_LEVEL = 1;
 	private static final int MAX_LEVEL = 10;
-	private SPECIAL stat;
+	private SPECIAL special;
 	private int baseLevel, extraLevel;
 
-	public Attribute(SPECIAL stat, int level) {
-		this.stat = stat;
-		this.baseLevel = level;
+	public Attribute(SPECIAL special, int baseLevel) {
+		this.special = special;
+		this.baseLevel = baseLevel;
 		this.extraLevel = 0;
 	}
 
-	public Attribute(SPECIAL stat, int level, int totalLevels) {
-		this.stat = stat;
-		this.baseLevel = level;
-		this.extraLevel = totalLevels - level;
+	public Attribute(SPECIAL special, int baseLevel, int totalLevels) {
+		this.special = special;
+		this.baseLevel = baseLevel;
+		this.extraLevel = totalLevels - baseLevel;
 	}
 
 	public int getAttributeLevel() {
@@ -42,11 +42,11 @@ public class Attribute {
 	public void boostAttribute(int boost) {
 		this.extraLevel += boost;
 	}
-
-	public SPECIAL getStat() {
-		return stat;
+	
+	public SPECIAL getSPECIAL() {
+		return this.special;
 	}
-
+	
 	public String getLevelString() {
 		return this.baseLevel + "(" + this.getAttributeLevel() + ")";
 	}

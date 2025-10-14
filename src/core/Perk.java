@@ -74,14 +74,14 @@ public enum Perk {
 	Ricochet("Ricochet", 6, 10, 3, new int[]{0, 2, 29, 50}, new String[]{"What goes around comes around! Any enemy's ranged attacks will sometimes ricochet back and instantly kill them. The closer you are to death, the higher the chance.", "There's an increased chance that an enemy's shot will ricochet back and kill them.", "When an enemy's shot ricochets back and kills them, there is a chance your Critical meter gets filled."});
 	
 	private String name;
-	private int statType, statReq, ranks;
+	private int specialTypeIndex, specialRequirement, ranks;
 	private int[] levelReq;
 	private String[] description;
 	
-	Perk(String name, int statType, int statReq, int ranks, int[] levelReq, String[] description) {
+	Perk(String name, int specialTypeIndex, int specialRequirement, int ranks, int[] levelReq, String[] description) {
 		this.name = name;
-		this.statType = statType;
-		this.statReq = statReq;
+		this.specialTypeIndex = specialTypeIndex;
+		this.specialRequirement = specialRequirement;
 		this.ranks = ranks;
 		this.levelReq = levelReq;
 		this.description = description;
@@ -91,12 +91,11 @@ public enum Perk {
 		return name;
 	}
 
-	public int getStatType() {
-		return statType;
+	public int getSpecialTypeIndex() {
+		return this.specialTypeIndex;
 	}
-
-	public int getStatReq() {
-		return statReq;
+	public int getSpecialRequirement() {
+		return this.specialRequirement;
 	}
 
 	public int getRanks() {

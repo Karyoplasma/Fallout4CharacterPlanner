@@ -24,7 +24,7 @@ public class BuildFileIO {
 			out.println();
 			out.println("[SPECIAL]");
 			for (Attribute special : state.specialLevels) {
-				out.println(special.getStat().name() + "=" + special.getLevelString());
+				out.println(special.getSPECIAL().name() + "=" + special.getLevelString());
 			}
 
 			out.println();

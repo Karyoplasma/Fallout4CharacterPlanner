@@ -33,8 +33,8 @@ public class PerkPanel extends JPanel implements SpecialChangeListener, PerkRemo
 	private static final Font PLAIN = new Font("Tahoma", Font.PLAIN, 14);
 	private final CharacterCalc calc;
 	private final EnumMap<SPECIAL, JCheckBox> bobbleheads = new EnumMap<SPECIAL, JCheckBox>(SPECIAL.class);
-	private final Map<Perk, JTextPane> perkPanes = new EnumMap<>(Perk.class);
-	private Map<SPECIAL, List<Perk>> groups;
+	private final Map<Perk, JTextPane> perkPanes = new EnumMap<Perk, JTextPane>(Perk.class);
+	private final Map<SPECIAL, List<Perk>> groups = new EnumMap<SPECIAL, List<Perk>>(SPECIAL.class);
 	private boolean isLoading = false;
 
 	public PerkPanel(CharacterCalc calc) {
@@ -64,7 +64,6 @@ public class PerkPanel extends JPanel implements SpecialChangeListener, PerkRemo
 	}
 
 	private void initPerksGrid() {
-		this.groups = new EnumMap<SPECIAL, List<Perk>>(SPECIAL.class);
 		SPECIAL[] specialValues = SPECIAL.values();
 		int maxRows = 10;
 		
@@ -112,7 +111,7 @@ public class PerkPanel extends JPanel implements SpecialChangeListener, PerkRemo
 	private void refreshSinglePane(Perk perk) {
 		JTextPane pane = perkPanes.get(perk);
 		int level = calc.getPerkLevel(perk);
-		int max = perk.getRanks();
+		int max = perk.getMaximumRanks();
 		formatPerkPane(pane, perk.getName(), level, max);
 		pane.setToolTipText("<html>" + perk.getDescription(level) + "</html>");
 	}
@@ -188,6 +187,6 @@ public class PerkPanel extends JPanel implements SpecialChangeListener, PerkRemo
 			return;
 		}
 
-		this.formatPerkPane(perkPanes.get(perk), perk.getName(), 0, perk.getRanks());
+		this.formatPerkPane(perkPanes.get(perk), perk.getName(), 0, perk.getMaximumRanks());
 	}
 }

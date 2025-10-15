@@ -4,6 +4,7 @@ public enum Stat {
 	HITPOINTS("HitPoints:"),
 	CARRYWEIGHT("Carry Weight:"),
 	ACTIONPOINTS("Action Points:"),
+	SKILLPOINTSUSED("Used Points: "),
 	LEVEL("Level:");
 	
 	private String flavorName;

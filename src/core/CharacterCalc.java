@@ -11,7 +11,7 @@ import listeners.StatChangeListener;
 public class CharacterCalc implements PerkChangeListener, AttributeChangeListener {
 
 	private int remaining, pointsUsed;
-	private Character character;
+	private final Character character;
 	private final List<StatChangeListener> statChangeListeners;
 	private final List<SpecialChangeListener> specialChangeListeners;
 	private final List<PerkRemovalListener> perkRemovalListeners;
@@ -22,7 +22,7 @@ public class CharacterCalc implements PerkChangeListener, AttributeChangeListene
 		this.perkRemovalListeners = new ArrayList<PerkRemovalListener>();
 		this.remaining = 21;
 		this.pointsUsed = 0;
-		this.character = new Character(this, this);
+		this.character = new Character(this);
 		
 	}
 	
@@ -90,16 +90,13 @@ public class CharacterCalc implements PerkChangeListener, AttributeChangeListene
 		this.notifySpecialChangeListeners(special, newValue);
 		switch (special) {
 		case Agility:
-			this.notifyStatChangeListeners(Stat.ACTIONPOINTS, Stat.HITPOINTS, Stat.LEVEL);
-			break;
-		case Endurance:
-			this.notifyStatChangeListeners(Stat.HITPOINTS, Stat.LEVEL);
+			this.notifyStatChangeListeners(Stat.ACTIONPOINTS, Stat.HITPOINTS, Stat.LEVEL, Stat.SKILLPOINTSUSED);
 			break;
 		case Strength:
-			this.notifyStatChangeListeners(Stat.CARRYWEIGHT, Stat.HITPOINTS, Stat.LEVEL);
+			this.notifyStatChangeListeners(Stat.CARRYWEIGHT, Stat.HITPOINTS, Stat.LEVEL, Stat.SKILLPOINTSUSED);
 			break;
 		default:
-			this.notifyStatChangeListeners(Stat.HITPOINTS, Stat.LEVEL);
+			this.notifyStatChangeListeners(Stat.HITPOINTS, Stat.LEVEL, Stat.SKILLPOINTSUSED);
 			break;
 		}
 	}
@@ -120,23 +117,24 @@ public class CharacterCalc implements PerkChangeListener, AttributeChangeListene
 		case Vans:
 			if (newValue == 2) {
 				this.character.boostAttribute(SPECIAL.Perception, 2);
-			} else {
-				if (oldValue == 2)
-					this.character.boostAttribute(SPECIAL.Perception, -2);
+				break;
 			}
-			this.notifyStatChangeListeners(Stat.HITPOINTS, Stat.LEVEL);
+			if (oldValue == 2) {
+				this.character.boostAttribute(SPECIAL.Perception, -2);
+				break;
+			}
+			this.notifyStatChangeListeners(Stat.HITPOINTS, Stat.LEVEL, Stat.SKILLPOINTSUSED);
 			break;
 		case StrongBack:
-			this.notifyStatChangeListeners(Stat.HITPOINTS, Stat.CARRYWEIGHT, Stat.LEVEL);
+			this.notifyStatChangeListeners(Stat.HITPOINTS, Stat.CARRYWEIGHT, Stat.SKILLPOINTSUSED, Stat.LEVEL);
 			break;
 		case LoneWanderer:
-			this.notifyStatChangeListeners(Stat.HITPOINTS, Stat.ACTIONPOINTS, Stat.CARRYWEIGHT, Stat.LEVEL);
+			this.notifyStatChangeListeners(Stat.HITPOINTS, Stat.ACTIONPOINTS, Stat.CARRYWEIGHT, Stat.LEVEL, Stat.SKILLPOINTSUSED);
 			break;
 		default:
-			this.notifyStatChangeListeners(Stat.HITPOINTS, Stat.LEVEL);
+			this.notifyStatChangeListeners(Stat.HITPOINTS, Stat.LEVEL, Stat.SKILLPOINTSUSED);
 			break;
 		}
-
 	}
 
 	public void setSPECIALBook(boolean hasBook) {
@@ -151,7 +149,7 @@ public class CharacterCalc implements PerkChangeListener, AttributeChangeListene
 				pointsUsed++;
 			}
 		}
-		this.notifyStatChangeListeners(Stat.LEVEL, Stat.HITPOINTS);
+		this.notifyStatChangeListeners(Stat.LEVEL, Stat.SKILLPOINTSUSED, Stat.HITPOINTS);
 	}
 
 	public void setBobblehead(SPECIAL attribute, boolean active) {
@@ -162,12 +160,12 @@ public class CharacterCalc implements PerkChangeListener, AttributeChangeListene
 		}
 	}
 
-	public double getHitPoints() {
+	public int getHitPoints() {
 		int perkModifier = this.character.getPerkLevel(Perk.Lifegiver) * 20;
-		int level = Math.max(this.character.getMaximumPerkLevelRequirement(), this.pointsUsed + 1);
-		double hitPoints = Math.floor(80 + perkModifier + (this.character.getAttributeLevel(SPECIAL.Endurance) * 5)
-				+ (level - 1) * ((this.character.getAttributeLevel(SPECIAL.Endurance) / 2) + 2.5));
-		return hitPoints;
+		int endurance = this.character.getAttributeLevel(SPECIAL.Endurance);
+		int levelUps = this.getLevelNeeded() - 1;
+		double hitPoints = 80 + perkModifier + (endurance * 5) + (levelUps * ((endurance * 0.5) + 2.5));
+		return (int) hitPoints;
 	}
 
 	public int getCarryWeight(boolean survival) {
@@ -198,16 +196,16 @@ public class CharacterCalc implements PerkChangeListener, AttributeChangeListene
 		return Math.max(this.character.getMaximumPerkLevelRequirement(), this.pointsUsed + 1);
 	}
 
-	public int getAttributeLevel(SPECIAL stat) {
-		return this.character.getAttributeLevel(stat);
+	public int getAttributeLevel(SPECIAL special) {
+		return this.character.getAttributeLevel(special);
 	}
 
-	public void skillAttribute(SPECIAL stat) {
-		this.character.skillAttribute(stat);
+	public void skillAttribute(SPECIAL special) {
+		this.character.skillAttribute(special);
 	}
 
-	public void unskillAttribute(SPECIAL stat) {
-		this.character.unskillAttribute(stat);
+	public void unskillAttribute(SPECIAL special) {
+		this.character.unskillAttribute(special);
 	}
 
 	public void skillPerk(Perk perk) {
@@ -220,10 +218,6 @@ public class CharacterCalc implements PerkChangeListener, AttributeChangeListene
 
 	public int getPerkLevel(Perk perk) {
 		return character.getPerkLevel(perk);
-	}
-
-	public boolean canLevelPerk(Perk perk) {
-		return character.perkAvailable(perk);
 	}
 	
 	public void saveState(BuildState state) {
@@ -246,8 +240,10 @@ public class CharacterCalc implements PerkChangeListener, AttributeChangeListene
 			return this.getActionPoints();
 		case LEVEL:
 			return this.getLevelNeeded();
+		case SKILLPOINTSUSED:
+			return this.pointsUsed;
 		default:
-			return (int) this.getHitPoints();
+			return this.getHitPoints();
 		}
 	}
 }

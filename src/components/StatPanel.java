@@ -53,7 +53,7 @@ public class StatPanel extends JPanel implements StatChangeListener {
 		for (Stat stat : Stat.values()) {
 			JLabel temp = new JLabel(stat.toString());
 			JLabel statLabel = new JLabel();
-			if (stat == Stat.LEVEL) {
+			if (stat == Stat.LEVEL || stat == Stat.SKILLPOINTSUSED) {
 				statLabel.setFont(BOLD);
 				temp.setFont(BOLD);
 			} else {

@@ -7,12 +7,12 @@ import listeners.AttributeChangeListener;
 import listeners.PerkChangeListener;
 
 public class Character {
-	private PerkChangeListener perkListener;
-	private AttributeChangeListener specialListener;
+	private final PerkChangeListener perkListener;
+	private final AttributeChangeListener specialListener;
 	private Attribute[] special = new Attribute[7];
 	private final Map<Perk, Integer> perks = new EnumMap<>(Perk.class);
 
-	public Character(PerkChangeListener perkListener, AttributeChangeListener specialListener) {
+	public Character(CharacterCalc calc) {
 		this.special[0] = new Attribute(SPECIAL.Strength, 1);
 		this.special[1] = new Attribute(SPECIAL.Perception, 1);
 		this.special[2] = new Attribute(SPECIAL.Endurance, 1);
@@ -20,8 +20,8 @@ public class Character {
 		this.special[4] = new Attribute(SPECIAL.Intelligence, 1);
 		this.special[5] = new Attribute(SPECIAL.Agility, 1);
 		this.special[6] = new Attribute(SPECIAL.Luck, 1);
-		this.perkListener = perkListener;
-		this.specialListener = specialListener;
+		this.perkListener = calc;
+		this.specialListener = calc;
 	}
 
 	public void removeStalePerks() {
@@ -43,7 +43,7 @@ public class Character {
 			return;
 		}
 		int currentValue = perks.getOrDefault(perk, 0);
-		if (currentValue >= perk.getRanks()) {
+		if (currentValue >= perk.getMaximumRanks()) {
 			return;
 		}
 		perks.put(perk, currentValue + 1);
@@ -97,10 +97,6 @@ public class Character {
 
 	public int getMaximumPerkLevelRequirement() {
 		return perks.entrySet().stream().mapToInt(e -> e.getKey().getLevelReq(e.getValue())).max().orElse(1);
-	}
-
-	public boolean perkAvailable(Perk perk) {
-		return this.special[perk.getSpecialTypeIndex()].getAttributeLevel() >= perk.getSpecialRequirement();
 	}
 
 	public void saveState(BuildState state) {

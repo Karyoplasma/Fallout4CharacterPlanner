@@ -49,7 +49,7 @@ public enum Perk {
 	Scrapper("Scrapper", 4, 5, 3, new int[]{0, 2, 23, 40}, new String[]{"Waste not, want not! You can salvage uncommon components like screws, aluminum, and copper when scrapping weapons and armor.", "You can salvage rare components like circuitry, nuclear material, and fiber optics when scrapping weapons and armor. Items with favorited components are highlighted.", "You get more from salvaging."}),
 	Science("Science!", 4, 6, 4, new int[]{0, 2, 17, 28, 41}, new String[]{"Take full advantage of advanced technology with access to base level and Rank 1 high-tech mods.", "You gain access to Rank 2 high-tech mods.", "You gain access to Rank 3 high-tech mods.", "You gain access to Rank 4 high-tech mods."}),
 	Chemist("Chemist", 4, 7, 4, new int[]{0, 2, 16, 32, 45}, new String[]{"Any chems you take last 50% longer. Far out.", "Any chems you take now last twice as long.", "Any chems you take now last an additional 150% longer.", "Any chems you take now last an additional 200% longer."}),
-	RoboticsExpert("RoboticsExpert", 4, 8, 3, new int[]{0, 2, 19, 44}, new String[]{"Machines will always serve humans, if you have anything to say about it. Hack a robot, and gain a chance to power it on or off, or initiate a self-destruct.", "When you successfully hack a robot, you can incite it to attack.", "When you successfully hack a robot, you can give it specific commands. [Command as a companion only]"}),
+	RoboticsExpert("Robotics Expert", 4, 8, 3, new int[]{0, 2, 19, 44}, new String[]{"Machines will always serve humans, if you have anything to say about it. Hack a robot, and gain a chance to power it on or off, or initiate a self-destruct.", "When you successfully hack a robot, you can incite it to attack.", "When you successfully hack a robot, you can give it specific commands. [Command as a companion only]"}),
 	NuclearPhysicist("Nuclear Physicist", 4, 9, 3, new int[]{0, 2, 14, 26}, new String[]{"You've learned to split the atom... and command it. Radiation weapons do 50.5% more damage and Fusion Cores last an extra 25% longer.", "Radiation weapons now do double damage and Fusion Cores last an extra 50% longer.", "Fusion Cores can be ejected from Power Armor like devastating grenades and Fusion Cores last twice as long."}),
 	NerdRage("Nerd Rage!", 4, 10, 3, new int[]{0, 2, 31, 50}, new String[]{"Genius. Is. ANGRY! When your Health drops below 20%, time slows and you gain +20 Damage resistance and do 20% more damage while the effect lasts.", "You now gain 30 more Damage Resistance and do 30% more damage while Nerd Rage is in effect.", "You now gain 40 more Damage Resistance and do 40% more damage while Nerd Rage is in effect. Kills you make while enraged restore some lost Health."}),
 	Gunslinger("Gunslinger", 5, 1, 5, new int[]{0, 2, 7, 15, 27, 42}, new String[]{"Channel the spirit of the old west! Non-automatic pistols do 20% more damage.", "Non-automatic pistols now do 40% more damage and have increased range.", "Non-automatic pistols now do 60% more damage and range is increased even further.", "Non-automatic pistols now do 80% more damage and their attacks can disarm opponents.", "Non-automatic pistols now do double damage. Their attacks have a much better chance to disarm opponents, and may even cripple a limb."}),
@@ -74,15 +74,15 @@ public enum Perk {
 	Ricochet("Ricochet", 6, 10, 3, new int[]{0, 2, 29, 50}, new String[]{"What goes around comes around! Any enemy's ranged attacks will sometimes ricochet back and instantly kill them. The closer you are to death, the higher the chance.", "There's an increased chance that an enemy's shot will ricochet back and kill them.", "When an enemy's shot ricochets back and kills them, there is a chance your Critical meter gets filled."});
 	
 	private String name;
-	private int specialTypeIndex, specialRequirement, ranks;
+	private int specialTypeIndex, specialRequirement, maximumRanks;
 	private int[] levelReq;
 	private String[] description;
 	
-	Perk(String name, int specialTypeIndex, int specialRequirement, int ranks, int[] levelReq, String[] description) {
+	Perk(String name, int specialTypeIndex, int specialRequirement, int maximumRanks, int[] levelReq, String[] description) {
 		this.name = name;
 		this.specialTypeIndex = specialTypeIndex;
 		this.specialRequirement = specialRequirement;
-		this.ranks = ranks;
+		this.maximumRanks = maximumRanks;
 		this.levelReq = levelReq;
 		this.description = description;
 	}
@@ -94,14 +94,15 @@ public enum Perk {
 	public int getSpecialTypeIndex() {
 		return this.specialTypeIndex;
 	}
+	
 	public int getSpecialRequirement() {
 		return this.specialRequirement;
 	}
-
-	public int getRanks() {
-		return ranks;
+	
+	public int getMaximumRanks() {
+		return maximumRanks;
 	}
-
+	
 	public int getLevelReq(int i) {
 		return levelReq[i];
 	}
